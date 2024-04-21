@@ -1,4 +1,5 @@
 
+using QuestionBank.Interfaces;
 using QuestionBank.Services;
 
 namespace QuestionBank
@@ -10,7 +11,7 @@ namespace QuestionBank
             var builder = WebApplication.CreateBuilder(args);
 
             // Add services to the container.
-
+            IDGeneraterService.SetQuestionID(DbService.GetNowQuestionID("Server=localhost;Database=questions_bank;User Id=postgres;Password=postgres"));
             builder.Services.AddControllers();
             //Dapper
             builder.Services.AddScoped<IDbService, DbService>();

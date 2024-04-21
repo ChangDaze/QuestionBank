@@ -1,8 +1,11 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using QuestionBank.DataEntities;
 using QuestionBank.DTOs;
-using QuestionBank.Models;
+using QuestionBank.Interfaces;
 using QuestionBank.ParameterObjects;
+using QuestionBank.Services;
 using System.Collections.Generic;
+using System.Reflection;
 
 namespace QuestionBank.Controllers
 {
@@ -10,39 +13,38 @@ namespace QuestionBank.Controllers
     [Route("api/[controller]/[action]")]
     public class QuestionController : Controller
     {
+        private readonly IQuestionBankService _questionBankService;
+
+        public QuestionController(IQuestionBankService questionBankService)
+        {
+            _questionBankService = questionBankService;
+        }
+
         [HttpGet]
         public IActionResult DisplayQuestions()
         {
             IActionResult result ;
-            DisplayQuestionsDTO displayQuestionsDTO = new DisplayQuestionsDTO();
-            displayQuestionsDTO.grades = new List<string> { "1", "2", "3", "4","5", "6" };
-            displayQuestionsDTO.subjects = new List<string> { "a", "c", "c" };
-            displayQuestionsDTO.papers = new List<string> { "A", "B", "C" };
-            displayQuestionsDTO.types = new List<int> { 1, 2, 3, 4, 5, 6 };
             result = new OkObjectResult(
-                        new resultObjectDTO<DisplayQuestionsDTO>() 
-                        {
-                            data=displayQuestionsDTO
-                        }
+                        _questionBankService.GetQuestionList()
                     );
             return result;
         }
 
         [HttpPost]
-        public IActionResult PickQuestions(PickQuestionsPara para)
+        public IActionResult PickQuestions(PickQuestionsPara _parameter)
         {
             IActionResult result;
             List < Question > questions = new List<Question>() 
             { 
-                new Question()
-                {
-                    pick_no = 1,
-                    question_id = 1,
-                    question = "question",
-                    sub_question = null,
-                    option = "A:a,B:b,C:c",
-                    answer = "A"
-                }
+                //new Question()
+                //{
+                //    pick_no = 1,
+                //    question_id = 1,
+                //    question = "question",
+                //    sub_question = null,
+                //    option = "A:a,B:b,C:c",
+                //    answer = "A"
+                //}
             };
 
             result = new OkObjectResult(
@@ -52,36 +54,37 @@ namespace QuestionBank.Controllers
         }
 
         [HttpPost]
-        public IActionResult InesrtQuestion(Question para)
+        public IActionResult InesrtQuestion(InesrtQuestionPara _parameter)
         {
-            IActionResult result;
-
-            result = new OkObjectResult(
+            Question question = new Question(_parameter);
+            question.question_id = IDGeneraterService.GetNewQuestionID();
+            question.create_user = question.update_user = "Tom";
+            question.create_datetime = question.update_datetime = DateTime.Now;
+            _questionBankService.CreateQuestion(question);
+            return new OkObjectResult(
                         new resultDTO()
                     );
-            return result;
         }
 
         [HttpPut]
-        public IActionResult UpdateQuestion(Question para)
+        public IActionResult UpdateQuestion(UpdateQuestionPara _parameter)
         {
-            IActionResult result;
-
-            result = new OkObjectResult(
+            Question question = new Question(_parameter);
+            question.update_user = "Tom2";
+            question.update_datetime = DateTime.Now;
+            _questionBankService.UpdateQuestion(question);
+            return new OkObjectResult(
                         new resultDTO()
                     );
-            return result;
         }
 
         [HttpDelete]
-        public IActionResult UpdateQuestion(int para)
+        public IActionResult DeleteQuestion(long _question_id)
         {
-            IActionResult result;
-
-            result = new OkObjectResult(
+            _questionBankService.DeleteQuestion(_question_id);
+            return new OkObjectResult(
                         new resultDTO()
                     );
-            return result;
         }
     }
 }

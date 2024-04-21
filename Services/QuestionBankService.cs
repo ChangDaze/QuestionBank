@@ -1,4 +1,5 @@
-﻿using QuestionBank.Models;
+﻿using QuestionBank.DataEntities;
+using QuestionBank.Interfaces;
 
 namespace QuestionBank.Services
 {
@@ -9,40 +10,51 @@ namespace QuestionBank.Services
         {
             _dbService = dbService;
         }
-        public bool CreateQuestion(Question question)
+        public bool CreateQuestion(Question _question)
         {
             var result =
                 _dbService.EditData(
-                    "INSERT INTO public.employee (id,name, age, address, mobile_number) VALUES (@Id, @Name, @Age, @Address, @MobileNumber)",
-                    question);
+                    @"INSERT INTO public.questions(
+	                    question_id, exam_id, exam_question_number, grade, subject,
+	                    type, content, option, answer, parent_question_id,
+	                    question_volume, update_datetime, update_user, create_datetime, create_user)
+                    VALUES (@question_id, @exam_id, @exam_question_number, @grade, @subject,
+	                       @type, @content, @option, @answer, @parent_question_id,
+	                       @question_volume, @update_datetime, @update_user, @create_datetime, @create_user);",
+                    _question);
             return true;
         }
-
         public List<Question> GetQuestionList()
         {
-            var employeeList = _dbService.GetAll<Question>("SELECT * FROM public.employee", new { });
-            return employeeList;
+            var questionList = _dbService.GetAll<Question>(
+                @"SELECT question_id, exam_id, exam_question_number, grade, subject,
+                        type, content, option, answer, parent_question_id,
+                        question_volume, update_datetime, update_user, create_datetime, create_user 
+                FROM public.questions", new { });
+            return questionList;
         }
-
-        public Question GetQuestion(int id)
+        public Question GetQuestion(long _question_id)
         {
-            var employeeList = _dbService.Get<Question>("SELECT * FROM public.employee where id=@id", new { id });
-            return employeeList;
+            var question = _dbService.Get<Question>("SELECT question_id, exam_id, exam_question_number, grade, subject, type, content, option, answer, parent_question_id, question_volume, update_datetime, update_user, create_datetime, create_user FROM public.questions where question_id = @question_id", new { _question_id });
+            return question;
         }
-
-        public Question UpdateQuestion(Question employee)
+        public bool UpdateQuestion(Question _question)
         {
             var updateEmployee =
                 _dbService.EditData(
-                    "Update public.employee SET name=@Name, age=@Age, address=@Address, mobile_number=@MobileNumber WHERE id=@Id",
-                    employee);
-            return employee;
-        }
-
-        public bool DeleteQuestion(int id)
-        {
-            var deleteEmployee = _dbService.EditData("DELETE FROM public.employee WHERE id=@Id", new { id });
+                    @"UPDATE public.questions
+                    SET exam_id=@exam_id, exam_question_number=@exam_question_number, grade=@grade,
+	                    subject=@subject, type=@type, content=@content,
+	                    option=@option, answer=@answer, parent_question_id=@parent_question_id,
+	                    question_volume=@question_volume, update_datetime=@update_datetime, update_user=@update_user
+                    WHERE question_id = @question_id;",
+                    _question);
             return true;
         }
+        public bool DeleteQuestion(long _question_id)
+        {
+            var deleteQuestion = _dbService.EditData("DELETE FROM public.questions where question_id = @question_id", new { _question_id });
+            return true;
+        }        
     }
 }
