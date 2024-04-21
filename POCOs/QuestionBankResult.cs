@@ -1,13 +1,13 @@
-﻿namespace QuestionBank.DTOs
+﻿namespace QuestionBank.POCOs
 {
-    public class resultDTO
+    public class QuestionBankResult
     {
         protected string _code = "0000";
         protected string _message = "執行成功";
-        public string code 
-        { 
+        public string code
+        {
             get { return _code; }
-            set { _code = value; } 
+            set { _code = value; }
         }
         public string message
         {
@@ -16,4 +16,3 @@
         }
     }
 }
-

@@ -1,10 +1,10 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using QuestionBank.DataEntities;
-using QuestionBank.DTOs;
 using QuestionBank.Interfaces;
-using QuestionBank.ParameterObjects;
+using QuestionBank.POCOs;
 using QuestionBank.Services;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Reflection;
 
 namespace QuestionBank.Controllers
@@ -14,76 +14,61 @@ namespace QuestionBank.Controllers
     public class QuestionController : Controller
     {
         private readonly IQuestionBankService _questionBankService;
-
         public QuestionController(IQuestionBankService questionBankService)
         {
             _questionBankService = questionBankService;
         }
-
+        //問題:缺選題API
         [HttpGet]
         public IActionResult DisplayQuestions()
         {
             IActionResult result ;
             result = new OkObjectResult(
-                        _questionBankService.GetQuestionList()
+                        new QuestionBankResultArray<Question>()
+                        {
+                            data = _questionBankService.GetQuestionList()
+                        }                        
                     );
             return result;
         }
-
         [HttpPost]
-        public IActionResult PickQuestions(PickQuestionsPara _parameter)
+        public IActionResult GetQuestion(int question_id)
         {
             IActionResult result;
-            List < Question > questions = new List<Question>() 
-            { 
-                //new Question()
-                //{
-                //    pick_no = 1,
-                //    question_id = 1,
-                //    question = "question",
-                //    sub_question = null,
-                //    option = "A:a,B:b,C:c",
-                //    answer = "A"
-                //}
-            };
 
             result = new OkObjectResult(
-                        new resultArrayDTO<Question>() { data = questions }
+                        new QuestionBankResultObject<Question>()
+                        {
+                            data = _questionBankService.GetQuestion(question_id)
+                        }                        
                     );
             return result;
         }
-
+        //問題:題組插入
         [HttpPost]
-        public IActionResult InesrtQuestion(InesrtQuestionPara _parameter)
-        {
-            Question question = new Question(_parameter);
-            question.question_id = IDGeneraterService.GetNewQuestionID();
-            question.create_user = question.update_user = "Tom";
-            question.create_datetime = question.update_datetime = DateTime.Now;
-            _questionBankService.CreateQuestion(question);
+        public IActionResult InesrtQuestion(InesrtQuestionParameter parameter)
+        {            
+            _questionBankService.CreateQuestion(parameter);
             return new OkObjectResult(
-                        new resultDTO()
+                        new QuestionBankResult()
                     );
         }
-
         [HttpPut]
-        public IActionResult UpdateQuestion(UpdateQuestionPara _parameter)
+        public IActionResult UpdateQuestion(UpdateQuestionParameter parameter)
         {
-            Question question = new Question(_parameter);
-            question.update_user = "Tom2";
-            question.update_datetime = DateTime.Now;
-            _questionBankService.UpdateQuestion(question);
+            parameter.update_datetime = DateTime.Now;
+            _questionBankService.UpdateQuestion(parameter);
             return new OkObjectResult(
-                        new resultDTO()
+                        new QuestionBankResult()
                     );
         }
-
+        //問題:題組刪除
         [HttpDelete]
-        public IActionResult DeleteQuestion(long _question_id)
+        public IActionResult DeleteQuestion(int question_id)
         {
-            _questionBankService.DeleteQuestion(_question_id);
+            _questionBankService.DeleteQuestion(question_id);
             return new OkObjectResult(
-                        new resultDTO()
+                        new QuestionBankResult()
                     );
         }
     }

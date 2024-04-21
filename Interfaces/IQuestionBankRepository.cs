@@ -3,9 +3,9 @@ using QuestionBank.POCOs;
 
 namespace QuestionBank.Interfaces
 {
-    public interface IQuestionBankService
+    public interface IQuestionBankRepository
     {
-        bool CreateQuestion(InesrtQuestionParameter question);
+        bool CreateQuestion(Question question);
         List<Question> GetQuestionList();
         Question? GetQuestion(int question_id);
         bool UpdateQuestion(UpdateQuestionParameter updateQuestionParameter);
