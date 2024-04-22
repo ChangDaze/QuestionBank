@@ -44,7 +44,6 @@ namespace QuestionBank.Controllers
                     );
             return result;
         }
-        //問題:題組插入
         [HttpPost]
         public IActionResult InesrtQuestion(InesrtQuestionParameter parameter)
         {            

@@ -15,54 +15,21 @@ namespace QuestionBank.Services
         public bool CreateQuestion(InesrtQuestionParameter inesrtQuestionParameter)
         {
             int parent_question_id = IDGeneraterService.GetNewQuestionID();
-            int parent_question_volume = 1;
-            if (inesrtQuestionParameter.sub_questions != null)
-            {
-                //更新母題題量
-                parent_question_volume = inesrtQuestionParameter.sub_questions.Count;
+            bool sub_question_flag = inesrtQuestionParameter.sub_questions != null ? true : false; //起取出來的flag，true時下面才敢用!
+            int parent_question_volume = sub_question_flag ? inesrtQuestionParameter.sub_questions!.Count : 1;
+
+            //新增母題
+            InesrtQuestionParameterCreateQuestion(inesrtQuestionParameter, null, parent_question_volume);//母題本身沒有母題id
+
+            if (sub_question_flag)
+            {                
                 //新增子題
-                foreach (InesrtQuestionParameter sub_question in inesrtQuestionParameter.sub_questions)
+                foreach (InesrtQuestionParameter sub_question in inesrtQuestionParameter.sub_questions!)
                 {
-                    Question subQuestion = new Question()
-                    {
-                        question_id = IDGeneraterService.GetNewQuestionID(), //產生新ID
-                        exam_id = sub_question.exam_id,
-                        exam_question_number = sub_question.exam_question_number,
-                        grade = sub_question.grade,
-                        subject = sub_question.subject,
-                        type = sub_question.type,
-                        content = sub_question.content,
-                        option = sub_question.option,
-                        answer = sub_question.answer,
-                        parent_question_id = parent_question_id, //子題需有母題號
-                        question_volume = 1, //子題固定為1
-                        update_datetime = DateTime.Now,
-                        update_user = sub_question.user,
-                        create_datetime = DateTime.Now,
-                        create_user = sub_question.user,
-                    };
-                    _questionsBankRepository.CreateQuestion(subQuestion);
+                    InesrtQuestionParameterCreateQuestion(sub_question, parent_question_id, 1); //子題單獨題量固定為1
                 }
             }
-            //新增母題
-            Question parentQuestion = new Question()
-            {
-                question_id = parent_question_id,
-                exam_id = inesrtQuestionParameter.exam_id,
-                exam_question_number = inesrtQuestionParameter.exam_question_number,
-                grade = inesrtQuestionParameter.grade,
-                subject = inesrtQuestionParameter.subject,
-                type = inesrtQuestionParameter.type,
-                content = inesrtQuestionParameter.content,
-                option = inesrtQuestionParameter.option,
-                answer = inesrtQuestionParameter.answer,
-                question_volume = parent_question_volume,
-                update_datetime = DateTime.Now,
-                update_user = inesrtQuestionParameter.user,
-                create_datetime = DateTime.Now,
-                create_user = inesrtQuestionParameter.user,
-            };
-            _questionsBankRepository.CreateQuestion(parentQuestion);                     
+                               
             return true;
         }
         public List<Question> GetQuestionList()
@@ -86,5 +53,27 @@ namespace QuestionBank.Services
             var deleteQuestion = _questionsBankRepository.DeleteQuestion(question_id);
             return true;
         }        
+        private void InesrtQuestionParameterCreateQuestion(InesrtQuestionParameter inesrtQuestionParameter, int? parent_question_id, int question_volume)
+        {
+            Question subQuestion = new Question()
+            {
+                question_id = IDGeneraterService.GetNewQuestionID(), //產生新ID
+                exam_id = inesrtQuestionParameter.exam_id,
+                exam_question_number = inesrtQuestionParameter.exam_question_number,
+                grade = inesrtQuestionParameter.grade,
+                subject = inesrtQuestionParameter.subject,
+                type = inesrtQuestionParameter.type,
+                content = inesrtQuestionParameter.content,
+                option = inesrtQuestionParameter.option,
+                answer = inesrtQuestionParameter.answer,
+                parent_question_id = parent_question_id, //子題需有母題號
+                question_volume = question_volume, //子題固定為1
+                update_datetime = DateTime.Now,
+                update_user = inesrtQuestionParameter.user,
+                create_datetime = DateTime.Now,
+                create_user = inesrtQuestionParameter.user,
+            };
+            _questionsBankRepository.CreateQuestion(subQuestion);
+        }
     }
 }

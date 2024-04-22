@@ -79,7 +79,14 @@ namespace QuestionBank.Repositories
         }
         public bool DeleteQuestion(int question_id)
         {
-            var deleteQuestion = this.EditData("DELETE FROM public.questions where question_id = @question_id", new { question_id });
+            var deleteQuestion = this.EditData(
+                                        @"DELETE FROM public.questions
+                                            WHERE question_id in (
+	                                            select distinct T2.question_id from
+		                                            (select question_id from public.questions where question_id = @question_id) T1
+		                                            join public.questions T2
+			                                            on	T1.question_id = T2.question_id or T1.question_id = T2.parent_question_id
+                                            )", new { question_id });
             return true;
         }
     }
