@@ -36,6 +36,30 @@ namespace QuestionBank.Repositories
             return result;
         }
         #endregion
+        public List<Question> GetQuestions()
+        {
+            var questions = this.GetAll<Question>(
+                @"SELECT question_id, exam_id, exam_question_number, grade, subject,
+                        type, content, option, answer, parent_question_id,
+                        question_volume, update_datetime, update_user, create_datetime, create_user 
+                FROM public.questions", new { });
+            return questions;
+        }
+        public Question? GetQuestion(int question_id)
+        {
+            var question = this.Get<Question>("SELECT question_id, exam_id, exam_question_number, grade, subject, type, content, option, answer, parent_question_id, question_volume, update_datetime, update_user, create_datetime, create_user FROM public.questions where question_id = @question_id", new { question_id });
+            return question;
+        }
+        public List<Question> PickQuestions(PickQuestionsParameter parameter)
+        {
+            var questions = this.GetAll<Question>(
+                @"select 
+	                question_id, exam_id, exam_question_number, grade, subject,
+	                type, content, option, answer, parent_question_id,
+	                question_volume, update_datetime, update_user, create_datetime, create_user 
+                from public.pick_questions()", new { parameter });
+            return questions;
+        }
         public bool CreateQuestion(Question question)
         {
             var result =
@@ -50,21 +74,7 @@ namespace QuestionBank.Repositories
                     question);
             return true;
         }
-        public List<Question> GetQuestionList()
-        {
-            var questionList = this.GetAll<Question>(
-                @"SELECT question_id, exam_id, exam_question_number, grade, subject,
-                        type, content, option, answer, parent_question_id,
-                        question_volume, update_datetime, update_user, create_datetime, create_user 
-                FROM public.questions", new { });
-            return questionList;
-        }
-        public Question? GetQuestion(int question_id)
-        {
-            var question = this.Get<Question>("SELECT question_id, exam_id, exam_question_number, grade, subject, type, content, option, answer, parent_question_id, question_volume, update_datetime, update_user, create_datetime, create_user FROM public.questions where question_id = @question_id", new { question_id });
-            return question;
-        }
-        public bool UpdateQuestion(UpdateQuestionParameter updateQuestionParameter)
+        public bool UpdateQuestion(UpdateQuestionParameter parameter)
         {
             var updateEmployee =
                 this.EditData(
@@ -74,7 +84,7 @@ namespace QuestionBank.Repositories
 	                        option=@option, answer=@answer, update_datetime=@update_datetime,
 	                        update_user=@update_user
                         WHERE question_id = @question_id;",
-                    updateQuestionParameter);
+                    parameter);
             return true;
         }
         public bool DeleteQuestion(int question_id)

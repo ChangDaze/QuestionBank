@@ -12,29 +12,9 @@ namespace QuestionBank.Services
         {
             _questionsBankRepository = questionsBankRepository;
         }
-        public bool CreateQuestion(InesrtQuestionParameter inesrtQuestionParameter)
+        public List<Question> GetQuestions()
         {
-            int parent_question_id = IDGeneraterService.GetNewQuestionID();
-            bool sub_question_flag = inesrtQuestionParameter.sub_questions != null ? true : false; //起取出來的flag，true時下面才敢用!
-            int parent_question_volume = sub_question_flag ? inesrtQuestionParameter.sub_questions!.Count : 1;
-
-            //新增母題
-            InesrtQuestionParameterCreateQuestion(inesrtQuestionParameter, null, parent_question_volume);//母題本身沒有母題id
-
-            if (sub_question_flag)
-            {                
-                //新增子題
-                foreach (InesrtQuestionParameter sub_question in inesrtQuestionParameter.sub_questions!)
-                {
-                    InesrtQuestionParameterCreateQuestion(sub_question, parent_question_id, 1); //子題單獨題量固定為1
-                }
-            }
-                               
-            return true;
-        }
-        public List<Question> GetQuestionList()
-        {
-            var questionList = _questionsBankRepository.GetQuestionList();
+            var questionList = _questionsBankRepository.GetQuestions();
             return questionList;
         }
         public Question? GetQuestion(int question_id)
@@ -42,17 +22,43 @@ namespace QuestionBank.Services
             var question = _questionsBankRepository.GetQuestion(question_id);
             return question;
         }
-        public bool UpdateQuestion(UpdateQuestionParameter updateQuestionParameter)
+        public List<Question> PickQuestions(PickQuestionsParameter parameter)
+        {
+            var questionList = _questionsBankRepository.PickQuestions(parameter);
+            return questionList;
+        }
+        public bool CreateQuestion(InesrtQuestionParameter parameter)
+        {
+            int parent_question_id = IDGeneraterService.GetNewQuestionID();
+            bool sub_question_flag = parameter.sub_questions != null ? true : false; //起取出來的flag，true時下面才敢用!
+            int parent_question_volume = sub_question_flag ? parameter.sub_questions!.Count : 1;
+
+            //新增母題
+            InesrtQuestionParameterCreateQuestion(parameter, null, parent_question_volume);//母題本身沒有母題id
+
+            if (sub_question_flag)
+            {                
+                //新增子題
+                foreach (InesrtQuestionParameter sub_question in parameter.sub_questions!)
+                {
+                    InesrtQuestionParameterCreateQuestion(sub_question, parent_question_id, 1); //子題單獨題量固定為1
+                }
+            }
+                               
+            return true;
+        }
+        public bool UpdateQuestion(UpdateQuestionParameter parameter)
         {
             var updateEmployee =
-                _questionsBankRepository.UpdateQuestion(updateQuestionParameter);
+                _questionsBankRepository.UpdateQuestion(parameter);
             return true;
         }
         public bool DeleteQuestion(int question_id)
         {
             var deleteQuestion = _questionsBankRepository.DeleteQuestion(question_id);
             return true;
-        }        
+        }   
+        
         private void InesrtQuestionParameterCreateQuestion(InesrtQuestionParameter inesrtQuestionParameter, int? parent_question_id, int question_volume)
         {
             Question subQuestion = new Question()

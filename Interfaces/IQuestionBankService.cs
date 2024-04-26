@@ -5,10 +5,11 @@ namespace QuestionBank.Interfaces
 {
     public interface IQuestionBankService
     {
-        bool CreateQuestion(InesrtQuestionParameter question);
-        List<Question> GetQuestionList();
+        List<Question> GetQuestions();        
         Question? GetQuestion(int question_id);
-        bool UpdateQuestion(UpdateQuestionParameter updateQuestionParameter);
+        List<Question> PickQuestions(PickQuestionsParameter parameter);
+        bool CreateQuestion(InesrtQuestionParameter parameter);
+        bool UpdateQuestion(UpdateQuestionParameter parameter);
         bool DeleteQuestion(int question_id);
     }
 }

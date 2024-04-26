@@ -17,21 +17,20 @@ namespace QuestionBank.Controllers
         public QuestionController(IQuestionBankService questionBankService)
         {
             _questionBankService = questionBankService;
-        }
-        //問題:缺選題API
+        }        
         [HttpGet]
-        public IActionResult DisplayQuestions()
+        public IActionResult GetQuestions()
         {
             IActionResult result ;
             result = new OkObjectResult(
                         new QuestionBankResultArray<Question>()
                         {
-                            data = _questionBankService.GetQuestionList()
+                            data = _questionBankService.GetQuestions()
                         }                        
                     );
             return result;
         }
-        [HttpPost]
+        [HttpGet]
         public IActionResult GetQuestion(int question_id)
         {
             IActionResult result;
@@ -44,9 +43,22 @@ namespace QuestionBank.Controllers
                     );
             return result;
         }
+        //因為Get Method不能有request body，用[FromQuery]可以讓swagger比較好測，沒有[FromQuery]還是能自動binding
+        [HttpGet]
+        public IActionResult PickQuestions([FromQuery]PickQuestionsParameter parameter) 
+        {
+            IActionResult result;
+            result = new OkObjectResult(
+                        new QuestionBankResultArray<Question>()
+                        {
+                            data = _questionBankService.PickQuestions(parameter)
+                        }
+                    );
+            return result;
+        }
         [HttpPost]
         public IActionResult InesrtQuestion(InesrtQuestionParameter parameter)
-        {            
+        {
             _questionBankService.CreateQuestion(parameter);
             return new OkObjectResult(
                         new QuestionBankResult()
@@ -61,7 +73,6 @@ namespace QuestionBank.Controllers
                         new QuestionBankResult()
                     );
         }
-        //問題:題組刪除
         [HttpDelete]
         public IActionResult DeleteQuestion(int question_id)
         {
