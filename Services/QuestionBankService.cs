@@ -22,10 +22,55 @@ namespace QuestionBank.Services
             var question = _questionsBankRepository.GetQuestion(question_id);
             return question;
         }
-        public List<Question> PickQuestions(PickQuestionsParameter parameter)
+        public List<DisplayQuestion> PickQuestions(PickQuestionsParameter parameter)
         {
-            var questionList = _questionsBankRepository.PickQuestions(parameter);
-            return questionList;
+            List<BaseSignQuestion> questionList = _questionsBankRepository.PickQuestions(parameter);
+            //取得parent question
+            List<DisplayQuestion> parent_questions = questionList
+                        .Where(x => x.parent_question_id is null)
+                        .Select(x => new DisplayQuestion()
+                                    {
+                                        question_id = x.question_id,
+                                        exam_id = x.exam_id,
+                                        exam_question_number = x.exam_question_number,
+                                        grade = x.grade,
+                                        subject = x.subject,
+                                        type = x.type,
+                                        content = x.content,
+                                        option = x.option,
+                                        answer = x.answer
+                                    }).ToList();
+            //取得parent question id
+            Dictionary<int, List<DisplayQuestion>> questionsMap = 
+                parent_questions
+                .Select(x=> new {x.question_id, sub_questions = new List<DisplayQuestion>()}) //因為question_id是PK所以不用特別distinct
+                .ToDictionary(x=>x.question_id,x=>x.sub_questions);
+            //取得sub question
+            var sub_questions = questionList.Where(x => x.parent_question_id is not null);
+            //歸類sub question
+            foreach(var sub_question in sub_questions)
+            {
+                //因為取出來的值是join的，所以一定有key
+                questionsMap[(int)sub_question.parent_question_id!].Add(
+                        new DisplayQuestion()
+                        {
+                            question_id = sub_question.question_id,
+                            exam_id = sub_question.exam_id,
+                            exam_question_number = sub_question.exam_question_number,
+                            grade = sub_question.grade,
+                            subject = sub_question.subject,
+                            type = sub_question.type,
+                            content = sub_question.content,
+                            option = sub_question.option,
+                            answer = sub_question.answer
+                        });
+            }
+            //組合display question
+            foreach(var parent_question in parent_questions)
+            {
+                parent_question.sub_questions = questionsMap[parent_question.question_id];
+            }
+            return parent_questions;
         }
         public bool CreateQuestion(InesrtQuestionParameter parameter)
         {
@@ -57,8 +102,7 @@ namespace QuestionBank.Services
         {
             var deleteQuestion = _questionsBankRepository.DeleteQuestion(question_id);
             return true;
-        }   
-        
+        }           
         private void InesrtQuestionParameterCreateQuestion(InesrtQuestionParameter inesrtQuestionParameter, int? parent_question_id, int question_volume)
         {
             Question subQuestion = new Question()

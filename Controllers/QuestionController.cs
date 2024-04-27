@@ -49,7 +49,7 @@ namespace QuestionBank.Controllers
         {
             IActionResult result;
             result = new OkObjectResult(
-                        new QuestionBankResultArray<Question>()
+                        new QuestionBankResultArray<DisplayQuestion>()
                         {
                             data = _questionBankService.PickQuestions(parameter)
                         }

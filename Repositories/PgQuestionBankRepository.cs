@@ -50,14 +50,21 @@ namespace QuestionBank.Repositories
             var question = this.Get<Question>("SELECT question_id, exam_id, exam_question_number, grade, subject, type, content, option, answer, parent_question_id, question_volume, update_datetime, update_user, create_datetime, create_user FROM public.questions where question_id = @question_id", new { question_id });
             return question;
         }
-        public List<Question> PickQuestions(PickQuestionsParameter parameter)
+        public List<BaseSignQuestion> PickQuestions(PickQuestionsParameter parameter)
         {
-            var questions = this.GetAll<Question>(
+            var questions = this.GetAll<BaseSignQuestion>(
                 @"select 
-	                question_id, exam_id, exam_question_number, grade, subject,
+	                base_question_id, question_id, exam_id, exam_question_number, grade, subject,
 	                type, content, option, answer, parent_question_id,
 	                question_volume, update_datetime, update_user, create_datetime, create_user 
-                from public.pick_questions()", new { parameter });
+                from
+                (
+	                select question_id base_question_id
+	                from public.questions 
+	                where parent_question_id is null
+                )T1
+                join public.questions T2
+	                on T1.base_question_id = T2.question_id or T1.base_question_id = T2.parent_question_id", new { parameter });
             return questions;
         }
         public bool CreateQuestion(Question question)

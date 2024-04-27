@@ -7,7 +7,7 @@ namespace QuestionBank.Interfaces
     {
         List<Question> GetQuestions();        
         Question? GetQuestion(int question_id);
-        List<Question> PickQuestions(PickQuestionsParameter parameter);
+        List<DisplayQuestion> PickQuestions(PickQuestionsParameter parameter);
         bool CreateQuestion(InesrtQuestionParameter parameter);
         bool UpdateQuestion(UpdateQuestionParameter parameter);
         bool DeleteQuestion(int question_id);
