@@ -5,6 +5,7 @@ using QuestionBank.Interfaces;
 using QuestionBank.POCOs;
 using QuestionBank.Services;
 using System.Data;
+using System.Data.Common;
 using System.Diagnostics.CodeAnalysis;
 
 namespace QuestionBank.Repositories
@@ -16,11 +17,17 @@ namespace QuestionBank.Repositories
         private readonly GeneralService _generalService;
         public PgQuestionBankRepository(IConfiguration configuration, GeneralService generalService)
         {
-            _db = new NpgsqlConnection(configuration["ConnectionStrings:QuestionBankDB"]);
+            _db = new NpgsqlConnection(configuration["ConnectionStrings:QuestionBankDB"]);            
             _configuration = configuration;
             _generalService = generalService;
         }
-        #region 底層連線方法
+        // Destructor : Close Database Connection
+        ~PgQuestionBankRepository()
+        {
+            _db.Close();
+            _db.Dispose();
+        }
+        #region Dapper方法
         private T? Get<T>(string command, object parms)
         {
             var result = _db.Query<T>(command, parms).FirstOrDefault();
