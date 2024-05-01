@@ -17,6 +17,8 @@ namespace QuestionBank
             //Dapper
             builder.Services.AddScoped<IQuestionBankRepository, PgQuestionBankRepository>();
             builder.Services.AddScoped<IQuestionBankService, QuestionBankService>();
+            //General Service
+            builder.Services.AddScoped<GeneralService>();
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();

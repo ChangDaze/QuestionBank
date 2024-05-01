@@ -7,7 +7,7 @@ namespace QuestionBank.Interfaces
     {        
         List<Question> GetQuestions();
         Question? GetQuestion(int question_id);
-        List<BaseSignQuestion> PickQuestions(PickQuestionsParameter parameter);
+        List<BaseSignQuestion> PickQuestions(PickQuestionsParameter parameter, IPickQuestionsFilter filter);
         bool CreateQuestion(Question question);
         bool UpdateQuestion(UpdateQuestionParameter parameter);
         bool DeleteQuestion(int question_id);

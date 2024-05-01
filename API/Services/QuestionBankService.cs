@@ -24,7 +24,18 @@ namespace QuestionBank.Services
         }
         public List<DisplayQuestion> PickQuestions(PickQuestionsParameter parameter)
         {
-            List<BaseSignQuestion> questionList = _questionsBankRepository.PickQuestions(parameter);
+            //缺Pick all (nolimit)
+            //缺減少至約略數量
+            //建立filter
+            IPickQuestionsFilter filter = new PickQuestionsFilter()
+            {
+                exam_id = parameter.exam_id,
+                grade = parameter.grade,
+                subject = parameter.subject,
+                question_type = parameter.question_type,
+            };
+            //取得BaseSignQuestion
+            List<BaseSignQuestion> questionList = _questionsBankRepository.PickQuestions(parameter, filter);
             //取得parent question
             List<DisplayQuestion> parent_questions = questionList
                         .Where(x => x.parent_question_id is null)
@@ -35,7 +46,7 @@ namespace QuestionBank.Services
                                         exam_question_number = x.exam_question_number,
                                         grade = x.grade,
                                         subject = x.subject,
-                                        type = x.type,
+                                        question_type = x.question_type,
                                         content = x.content,
                                         option = x.option,
                                         answer = x.answer
@@ -59,7 +70,7 @@ namespace QuestionBank.Services
                             exam_question_number = sub_question.exam_question_number,
                             grade = sub_question.grade,
                             subject = sub_question.subject,
-                            type = sub_question.type,
+                            question_type = sub_question.question_type,
                             content = sub_question.content,
                             option = sub_question.option,
                             answer = sub_question.answer
@@ -77,10 +88,8 @@ namespace QuestionBank.Services
             int parent_question_id = IDGeneraterService.GetNewQuestionID();
             bool sub_question_flag = parameter.sub_questions != null ? true : false; //起取出來的flag，true時下面才敢用!
             int parent_question_volume = sub_question_flag ? parameter.sub_questions!.Count : 1;
-
             //新增母題
             InesrtQuestionParameterCreateQuestion(parameter, null, parent_question_volume);//母題本身沒有母題id
-
             if (sub_question_flag)
             {                
                 //新增子題
@@ -88,8 +97,7 @@ namespace QuestionBank.Services
                 {
                     InesrtQuestionParameterCreateQuestion(sub_question, parent_question_id, 1); //子題單獨題量固定為1
                 }
-            }
-                               
+            }                               
             return true;
         }
         public bool UpdateQuestion(UpdateQuestionParameter parameter)
@@ -112,7 +120,7 @@ namespace QuestionBank.Services
                 exam_question_number = inesrtQuestionParameter.exam_question_number,
                 grade = inesrtQuestionParameter.grade,
                 subject = inesrtQuestionParameter.subject,
-                type = inesrtQuestionParameter.type,
+                question_type = inesrtQuestionParameter.question_type,
                 content = inesrtQuestionParameter.content,
                 option = inesrtQuestionParameter.option,
                 answer = inesrtQuestionParameter.answer,

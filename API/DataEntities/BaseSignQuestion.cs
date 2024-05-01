@@ -8,7 +8,7 @@
         public string? exam_question_number { get; set; }
         public string? grade { get; set; }
         public string? subject { get; set; }
-        public string? type { get; set; }
+        public string? question_type { get; set; }
         public string? content { get; set; }
         public string? option { get; set; }
         public string? answer { get; set; }

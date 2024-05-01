@@ -17,7 +17,8 @@ namespace QuestionBank.Controllers
         public QuestionController(IQuestionBankService questionBankService)
         {
             _questionBankService = questionBankService;
-        }        
+        }
+        //缺DisplayQuestionFilters
         [HttpGet]
         public IActionResult GetQuestions()
         {
@@ -34,7 +35,6 @@ namespace QuestionBank.Controllers
         public IActionResult GetQuestion(int question_id)
         {
             IActionResult result;
-
             result = new OkObjectResult(
                         new QuestionBankResultObject<Question>()
                         {

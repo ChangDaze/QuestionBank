@@ -3,6 +3,7 @@ using Npgsql;
 using QuestionBank.DataEntities;
 using QuestionBank.Interfaces;
 using QuestionBank.POCOs;
+using QuestionBank.Services;
 using System.Data;
 using System.Diagnostics.CodeAnalysis;
 
@@ -12,10 +13,12 @@ namespace QuestionBank.Repositories
     {
         private readonly IDbConnection _db;
         private readonly IConfiguration _configuration;
-        public PgQuestionBankRepository(IConfiguration configuration)
+        private readonly GeneralService _generalService;
+        public PgQuestionBankRepository(IConfiguration configuration, GeneralService generalService)
         {
+            _db = new NpgsqlConnection(configuration["ConnectionStrings:QuestionBankDB"]);
             _configuration = configuration;
-            _db = new NpgsqlConnection(_configuration["ConnectionStrings:QuestionBankDB"]);
+            _generalService = generalService;
         }
         #region 底層連線方法
         private T? Get<T>(string command, object parms)
@@ -40,31 +43,35 @@ namespace QuestionBank.Repositories
         {
             var questions = this.GetAll<Question>(
                 @"SELECT question_id, exam_id, exam_question_number, grade, subject,
-                        type, content, option, answer, parent_question_id,
+                        question_type, content, option, answer, parent_question_id,
                         question_volume, update_datetime, update_user, create_datetime, create_user 
                 FROM public.questions", new { });
             return questions;
         }
         public Question? GetQuestion(int question_id)
         {
-            var question = this.Get<Question>("SELECT question_id, exam_id, exam_question_number, grade, subject, type, content, option, answer, parent_question_id, question_volume, update_datetime, update_user, create_datetime, create_user FROM public.questions where question_id = @question_id", new { question_id });
+            var question = this.Get<Question>("SELECT question_id, exam_id, exam_question_number, grade, subject, question_type, content, option, answer, parent_question_id, question_volume, update_datetime, update_user, create_datetime, create_user FROM public.questions where question_id = @question_id", new { question_id });
             return question;
         }
-        public List<BaseSignQuestion> PickQuestions(PickQuestionsParameter parameter)
+        public List<BaseSignQuestion> PickQuestions(PickQuestionsParameter parameter, IPickQuestionsFilter filter)
         {
+            string filterSQLCommand = _generalService.TypePropertiesGenerateFilterSQLCommand<IPickQuestionsFilter>(filter);
             var questions = this.GetAll<BaseSignQuestion>(
-                @"select 
+                @$"select 
 	                base_question_id, question_id, exam_id, exam_question_number, grade, subject,
-	                type, content, option, answer, parent_question_id,
+	                question_type, content, option, answer, parent_question_id,
 	                question_volume, update_datetime, update_user, create_datetime, create_user 
                 from
                 (
 	                select question_id base_question_id
 	                from public.questions 
-	                where parent_question_id is null
+	                where 
+		                parent_question_id is null {filterSQLCommand}
+	                order by random()
+	                LIMIT (@data_count)
                 )T1
                 join public.questions T2
-	                on T1.base_question_id = T2.question_id or T1.base_question_id = T2.parent_question_id", new { parameter });
+	                on T1.base_question_id = T2.question_id or T1.base_question_id = T2.parent_question_id", parameter);
             return questions;
         }
         public bool CreateQuestion(Question question)
@@ -73,10 +80,10 @@ namespace QuestionBank.Repositories
                 this.EditData(
                     @"INSERT INTO public.questions(
 	                    question_id, exam_id, exam_question_number, grade, subject,
-	                    type, content, option, answer, parent_question_id,
+	                    question_type, content, option, answer, parent_question_id,
 	                    question_volume, update_datetime, update_user, create_datetime, create_user)
                     VALUES (@question_id, @exam_id, @exam_question_number, @grade, @subject,
-	                       @type, @content, @option, @answer, @parent_question_id,
+	                       @question_type, @content, @option, @answer, @parent_question_id,
 	                       @question_volume, @update_datetime, @update_user, @create_datetime, @create_user);",
                     question);
             return true;
@@ -87,7 +94,7 @@ namespace QuestionBank.Repositories
                 this.EditData(
                     @"UPDATE public.questions
                         SET exam_id=@exam_id, exam_question_number=@exam_question_number, grade=@grade,
-	                        subject=@subject, type=@type, content=@content,
+	                        subject=@subject, question_type=@question_type, content=@content,
 	                        option=@option, answer=@answer, update_datetime=@update_datetime,
 	                        update_user=@update_user
                         WHERE question_id = @question_id;",
