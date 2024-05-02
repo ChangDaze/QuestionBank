@@ -26,6 +26,8 @@ namespace QuestionBank.Services
         {
             //缺Pick all (nolimit)
             //缺減少至約略數量
+            //取出題數標準
+            int data_count = parameter.data_count;
             //建立filter
             IPickQuestionsFilter filter = new PickQuestionsFilter()
             {
@@ -49,7 +51,8 @@ namespace QuestionBank.Services
                                         question_type = x.question_type,
                                         content = x.content,
                                         option = x.option,
-                                        answer = x.answer
+                                        answer = x.answer,
+                                        question_volume = x.question_volume
                                     }).ToList();
             //取得parent question id
             Dictionary<int, List<DisplayQuestion>> questionsMap = 
@@ -76,8 +79,13 @@ namespace QuestionBank.Services
                             answer = sub_question.answer
                         });
             }
+            //將總題數減至data_count以下
+            while(parent_questions.Sum(x=>x.question_volume) > data_count && parent_questions.Any())
+            {
+                parent_questions.RemoveAt(0);
+            }
             //組合display question
-            foreach(var parent_question in parent_questions)
+            foreach (var parent_question in parent_questions)
             {
                 parent_question.sub_questions = questionsMap[parent_question.question_id];
             }

@@ -11,6 +11,7 @@
         public string? content { get; set; }
         public string? option { get; set; }
         public string? answer { get; set; }
+        public int question_volume { get; set; }
         public List<DisplayQuestion>? sub_questions { get; set; }
     }
 }
