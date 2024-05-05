@@ -13,7 +13,6 @@ namespace QuestionBank.Services
             question_id += 1;
             return question_id;
         }
-
         //取得目前question_id並設置
         public static bool SetQuestionID(string connectionString)
         {

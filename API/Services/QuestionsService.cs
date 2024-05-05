@@ -5,12 +5,23 @@ using System.Reflection.Metadata;
 
 namespace QuestionBank.Services
 {
-    public class QuestionBankService:IQuestionBankService
+    public class QuestionsService:IQuestionsService
     {
         private readonly IQuestionBankRepository _questionsBankRepository;
-        public QuestionBankService(IQuestionBankRepository questionsBankRepository)
+        public QuestionsService(IQuestionBankRepository questionsBankRepository)
         {
             _questionsBankRepository = questionsBankRepository;
+        }
+        public QuestionFilters GetQuestionFilters()
+        {
+            QuestionFilters questionFilters = new QuestionFilters()
+            {
+                grades = _questionsBankRepository.GetGradeFilters(),
+                subjects = _questionsBankRepository.GetSubjectFilters(),
+                exam_ids = _questionsBankRepository.GetExamIDFilters(),
+                question_types = _questionsBankRepository.GetQuestionTypeFilters(),
+            };
+            return questionFilters;
         }
         public List<Question> GetQuestions()
         {

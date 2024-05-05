@@ -4,12 +4,16 @@ using QuestionBank.POCOs;
 namespace QuestionBank.Interfaces
 {
     public interface IQuestionBankRepository
-    {        
-        List<Question> GetQuestions();
-        Question? GetQuestion(int question_id);
-        List<BaseSignQuestion> PickQuestions(PickQuestionsParameter parameter, IPickQuestionsFilter filter);
-        bool CreateQuestion(Question question);
-        bool UpdateQuestion(UpdateQuestionParameter parameter);
-        bool DeleteQuestion(int question_id);
+    {
+        public List<string> GetGradeFilters();
+        public List<string> GetSubjectFilters();
+        public List<string> GetExamIDFilters();
+        public List<string> GetQuestionTypeFilters();
+        public List<Question> GetQuestions();
+        public Question? GetQuestion(int question_id);
+        public List<BaseSignQuestion> PickQuestions(PickQuestionsParameter parameter, IPickQuestionsFilter filter);
+        public bool CreateQuestion(Question question);
+        public bool UpdateQuestion(UpdateQuestionParameter parameter);
+        public bool DeleteQuestion(int question_id);
     }
 }

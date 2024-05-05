@@ -46,6 +46,30 @@ namespace QuestionBank.Repositories
             return result;
         }
         #endregion
+        public List<string> GetGradeFilters()
+        {
+            var grades = this.GetAll<string>(
+                @"SELECT distinct grade FROM public.questions where grade is not null order by grade;", new { });
+            return grades;
+        }
+        public List<string> GetSubjectFilters()
+        {
+            var subjects = this.GetAll<string>(
+                @"SELECT distinct subject FROM public.questions where grade is not null order by subject;", new { });
+            return subjects;
+        }
+        public List<string> GetExamIDFilters()
+        {
+            var exam_ids = this.GetAll<string>(
+                @"SELECT distinct exam_id FROM public.questions where grade is not null order by exam_id;", new { });
+            return exam_ids;
+        }
+        public List<string> GetQuestionTypeFilters()
+        {
+            var question_types = this.GetAll<string>(
+                @"SELECT distinct question_type FROM public.questions where grade is not null order by question_type;", new { });
+            return question_types;
+        }
         public List<Question> GetQuestions()
         {
             var questions = this.GetAll<Question>(
