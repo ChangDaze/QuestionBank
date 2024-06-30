@@ -1,6 +1,7 @@
 ﻿using Dapper;
 using Npgsql;
 using QuestionBank.DataEntities;
+using QuestionBank.Global;
 using QuestionBank.Interfaces;
 using QuestionBank.POCOs;
 using QuestionBank.Services;
@@ -14,12 +15,11 @@ namespace QuestionBank.Repositories
     {
         private readonly IDbConnection _db;
         private readonly IConfiguration _configuration;
-        private readonly GeneralService _generalService;
-        public PgQuestionBankRepository(IConfiguration configuration, GeneralService generalService)
+        
+        public PgQuestionBankRepository(IConfiguration configuration)
         {
             _db = new NpgsqlConnection(configuration["ConnectionStrings:QuestionBankDB"]);            
-            _configuration = configuration;
-            _generalService = generalService;
+            _configuration = configuration;            
         }
         // Destructor : Close Database Connection
         ~PgQuestionBankRepository()
@@ -86,7 +86,7 @@ namespace QuestionBank.Repositories
         }
         public List<BaseSignQuestion> PickQuestions(PickQuestionsParameter parameter, IPickQuestionsFilter filter)
         {
-            string filterSQLCommand = _generalService.TypePropertiesGenerateFilterSQLCommand<IPickQuestionsFilter>(filter);
+            string filterSQLCommand = GlobalClass.TypePropertiesGenerateFilterSQLCommand<IPickQuestionsFilter>(filter);
             var questions = this.GetAll<BaseSignQuestion>(
                 @$"select 
 	                base_question_id, question_id, exam_id, exam_question_number, grade, subject,
