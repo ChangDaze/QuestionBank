@@ -2,7 +2,6 @@
 using Microsoft.Extensions.Caching.Memory;
 using QuestionBank.DataEntities;
 using QuestionBank.Global;
-using QuestionBank.Interfaces;
 using QuestionBank.POCOs;
 using QuestionBank.Services;
 using System.Collections.Generic;
@@ -37,13 +36,12 @@ namespace QuestionBank.Controllers
             {
                 // 指定的Cache不存在，所以給予一個新的值
                 questionFilters = _questionsService.GetQuestionFilters();
-                // 把資料除存進Cache中，沒設MemoryCacheEntryOptions的話預設是永存
-                _memoryCache.Set("questionFilters", questionFilters);
+                // 把資料除存進Cache中，沒設MemoryCacheEntryOptions的話預設是永存，目前設15分鐘消亡，應該可以用列舉或config另外抽離，也方便測試
+                _memoryCache.Set("questionFilters", questionFilters,TimeSpan.FromMinutes(15));
             }
             
-            var result = new OkObjectResult(
-                        new QuestionBankResultObject<QuestionFilters>(){ data = questionFilters }
-                    );
+            //因為是陣列形式，所以就算為空也不報錯
+            var result = new QuestionBankResultObject<QuestionFilters>(){ data = questionFilters };
 
             _logger.LogInformation("【GetQuestionFilters】【Result】" + GlobalClass.JsonSerializeChineseEncode(result));
             return new OkObjectResult(result);

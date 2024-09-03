@@ -1,6 +1,4 @@
-﻿using QuestionBank.Interfaces;
-
-namespace QuestionBank.POCOs
+﻿namespace QuestionBank.POCOs
 {
     public class PickQuestionsParameter : IPickQuestionsFilter
     {

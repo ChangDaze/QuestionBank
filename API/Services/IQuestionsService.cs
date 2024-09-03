@@ -1,7 +1,7 @@
 ﻿using QuestionBank.DataEntities;
 using QuestionBank.POCOs;
 
-namespace QuestionBank.Interfaces
+namespace QuestionBank.Services
 {
     public interface IQuestionsService
     {

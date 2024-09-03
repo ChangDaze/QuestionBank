@@ -1,6 +1,6 @@
 ﻿using QuestionBank.DataEntities;
-using QuestionBank.Interfaces;
 using QuestionBank.POCOs;
+using QuestionBank.Repositories;
 using System.Reflection.Metadata;
 
 namespace QuestionBank.Services

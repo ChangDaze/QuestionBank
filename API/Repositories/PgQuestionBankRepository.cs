@@ -2,7 +2,6 @@
 using Npgsql;
 using QuestionBank.DataEntities;
 using QuestionBank.Global;
-using QuestionBank.Interfaces;
 using QuestionBank.POCOs;
 using QuestionBank.Services;
 using System.Data;

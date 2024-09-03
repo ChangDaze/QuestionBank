@@ -1,4 +1,4 @@
-﻿namespace QuestionBank.Interfaces
+﻿namespace QuestionBank.POCOs
 {
     public interface IPickQuestionsFilter
     {
